@@ -2,20 +2,24 @@
 import { getEntryByCategoryAndId } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Toggle from "@/components/toggle";
+
 interface Props {
-  params: {
+  params: Promise<{
     categoryId: string;
     entryId: string;
-  };
+  }>;
 }
 
 export default async function EntryPage({ params }: Props) {
-  const categoryId = parseInt(params.categoryId, 10);
-  const entryId = parseInt(params.entryId, 10);
+  // 异步解析 params
+  const { categoryId, entryId } = await params;
 
-  if (isNaN(categoryId) || isNaN(entryId)) notFound();
+  const categoryIdNum = parseInt(categoryId, 10);
+  const entryIdNum = parseInt(entryId, 10);
 
-  const entry = await getEntryByCategoryAndId(categoryId, entryId);
+  if (isNaN(categoryIdNum) || isNaN(entryIdNum)) notFound();
+
+  const entry = await getEntryByCategoryAndId(categoryIdNum, entryIdNum);
   if (!entry) notFound();
 
   return (
@@ -45,7 +49,7 @@ export default async function EntryPage({ params }: Props) {
         })}
       </p>
       <div className="pl-4">
-        <Toggle entryId={entry.id} categoryId={entry.categoryId} />
+        <Toggle entryId={entryIdNum} categoryId={categoryIdNum} />
       </div>
     </div>
   );
