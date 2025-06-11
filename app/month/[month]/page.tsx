@@ -2,7 +2,13 @@ import { getEntriesWithCategories } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function MonthPage({ params, searchParams }: { params: { month: string }; searchParams: { sort?: string } }) {
+export default async function MonthPage({
+  params,
+  searchParams,
+}: {
+  params: { month: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   // 解析路由参数（格式：2025-06）
   const [year, month] = params.month.split("-").map(Number);
   if (!year || !month || month < 1 || month > 12) {
