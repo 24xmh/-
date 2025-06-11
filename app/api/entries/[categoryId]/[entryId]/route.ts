@@ -1,14 +1,22 @@
 import { prismaEntries } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-// GET: 获取某个条目
-export async function GET(
-  request: Request,
-  { params }: { params: { categoryId: string; entryId: string } }
-) {
+// 工具函数：从 URL 中提取 params
+function extractParams(request: Request) {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split("/");
+
+  // 假设路径为 /api/entries/[categoryId]/[entryId]
+  const categoryId = Number(pathParts.at(-2));
+  const entryId = Number(pathParts.at(-1));
+  return { categoryId, entryId };
+}
+
+// GET: 获取条目
+export async function GET(request: NextRequest) {
   try {
-    const categoryId = Number(params.categoryId);
-    const entryId = Number(params.entryId);
+    const { categoryId, entryId } = extractParams(request);
 
     if (isNaN(categoryId) || isNaN(entryId)) {
       return NextResponse.json({ error: "无效的 categoryId 或 entryId" }, { status: 400 });
@@ -16,10 +24,8 @@ export async function GET(
 
     const entry = await prismaEntries.entry.findFirst({
       where: {
-        AND: [
-          { categoryId },
-          { id: entryId }
-        ]
+        categoryId,
+        id: entryId,
       },
     });
 
@@ -34,29 +40,23 @@ export async function GET(
   }
 }
 
-// PUT: 更新条目的内容
-export async function PUT(
-  req: Request,
-  { params }: { params: { categoryId: string; entryId: string } }
-) {
+// PUT: 更新条目
+export async function PUT(request: NextRequest) {
   try {
-    const categoryId = Number(params.categoryId);
-    const entryId = Number(params.entryId);
+    const { categoryId, entryId } = extractParams(request);
 
     if (isNaN(categoryId) || isNaN(entryId)) {
       return NextResponse.json({ error: "无效的 categoryId 或 entryId" }, { status: 400 });
     }
 
-    const { content } = await req.json();
+    const { content } = await request.json();
 
     if (!content) {
       return NextResponse.json({ error: "缺少 content 参数" }, { status: 400 });
     }
 
     const updatedEntry = await prismaEntries.entry.update({
-      where: {
-        id: entryId
-      },
+      where: { id: entryId },
       data: {
         content,
         updatedAt: new Date(),
