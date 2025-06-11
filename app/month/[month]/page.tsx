@@ -2,13 +2,7 @@ import { getEntriesWithCategories } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function MonthPage({
-  params,
-  searchParams,
-}: {
-  params: { month: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default async function MonthPage({ params, searchParams }: { params: { month: string }; searchParams: { sort?: string } }) {
   // 解析路由参数（格式：2025-06）
   const [year, month] = params.month.split("-").map(Number);
   if (!year || !month || month < 1 || month > 12) {
@@ -19,6 +13,7 @@ export default async function MonthPage({
   const sortOrder = searchParams.sort === "asc" ? "asc" : "desc";
 
   // 获取所有条目，包含分类
+
   const entries = await getEntriesWithCategories();
 
   // 过滤该月份的条目
