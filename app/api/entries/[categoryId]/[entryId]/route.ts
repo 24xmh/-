@@ -1,12 +1,14 @@
-// /app/api/entries/[categoryId]/[entryId]/route.ts
 import { prismaEntries } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 // GET: 获取某个条目
-export async function GET(_: Request, context: { params: { categoryId: string; entryId: string } }) {
+export async function GET(
+  request: Request,
+  { params }: { params: { categoryId: string; entryId: string } }
+) {
   try {
-    const categoryId = Number(context.params.categoryId);
-    const entryId = Number(context.params.entryId);
+    const categoryId = Number(params.categoryId);
+    const entryId = Number(params.entryId);
 
     if (isNaN(categoryId) || isNaN(entryId)) {
       return NextResponse.json({ error: "无效的 categoryId 或 entryId" }, { status: 400 });
@@ -16,8 +18,8 @@ export async function GET(_: Request, context: { params: { categoryId: string; e
       where: {
         AND: [
           { categoryId },
-          { id: entryId },
-        ],
+          { id: entryId }
+        ]
       },
     });
 
@@ -33,10 +35,13 @@ export async function GET(_: Request, context: { params: { categoryId: string; e
 }
 
 // PUT: 更新条目的内容
-export async function PUT(req: Request, context: { params: { categoryId: string; entryId: string } }) {
+export async function PUT(
+  req: Request,
+  { params }: { params: { categoryId: string; entryId: string } }
+) {
   try {
-    const categoryId = Number(context.params.categoryId);
-    const entryId = Number(context.params.entryId);
+    const categoryId = Number(params.categoryId);
+    const entryId = Number(params.entryId);
 
     if (isNaN(categoryId) || isNaN(entryId)) {
       return NextResponse.json({ error: "无效的 categoryId 或 entryId" }, { status: 400 });
@@ -50,7 +55,7 @@ export async function PUT(req: Request, context: { params: { categoryId: string;
 
     const updatedEntry = await prismaEntries.entry.update({
       where: {
-        id: entryId,
+        id: entryId
       },
       data: {
         content,
